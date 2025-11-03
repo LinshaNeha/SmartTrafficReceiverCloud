@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Traffic Security Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* Dark Theme */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #141d3b;
+      color: #cfd0f1;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #1f1f38;
+      padding: 20px 0 0 0;
+      box-shadow: 2px 0 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar h2 {
+      color: #e5e5ee;
+      text-align: center;
+      margin: 0 0 30px 0;
+      font-size: 20px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar ul li {
+      margin: 5px 0;
+    }
+
+    .sidebar ul li a {
+      text-decoration: none;
+      color: #cfd0f1;
+      display: block;
+      padding: 12px 20px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar ul li.active a,
+    .sidebar ul li a:hover {
+      background-color: #1f1f38;
+      color: #5a5afc;
+    }
+
+    /* Main */
+    .main {
+      margin-left: 220px;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #5a5afc;
+      margin-bottom: 20px;
+      font-size: 26px;
+    }
+
+    /* Cards */
+    .cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background-color: #1f1f38;
+      border-radius: 10px;
+      padding: 20px;
+      width: 300px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+    }
+
+    .card h3 {
+      color: #8aa2f7;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 18px;
+      font-weight: bold;
+      color: #cfd0f1;
+    }
+
+    a {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Dashboard</h2>
+    <ul>
+      <li class="active"><a href="{{ url_for('index') }}">Overview Panel</a></li>
+      <li><a href="{{ url_for('traffic') }}">Traffic Monitor</a></li>
+      <li><a href="{{ url_for('ids') }}">Intrusion Detection (AI-IDS)</a></li>
+      <li><a href="{{ url_for('qkd') }}">QKD Security</a></li>
+      <li><a href="{{ url_for('attack') }}">Attack Simulation</a></li>
+      <li><a href="{{ url_for('logs') }}">Logs & Reports</a></li>
+      <li><a href="{{ url_for('settings') }}">Settings</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <section>
+      <h1>Overview Panel</h1>
+      <div class="cards">
+        <!-- QKD Status -->
+        <div class="card">
+          <h3>QKD Status</h3>
+          <p id="qkdStatusCard">⏳ Idle</p>
+          <a href="{{ url_for('qkd') }}" style="color: #5a5afc; font-size: 14px;">🔑 Manage QKD</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Script -->
+  <script>
+    async function updateQKDStatus() {
+      try {
+        const res = await fetch("/get_qkd_status");
+        const data = await res.json();
+        const statusEl = document.getElementById("qkdStatusCard");
+
+        if (data.status === "Active") {
+          statusEl.textContent = "✅ Received";
+          statusEl.style.color = "limegreen";
+        } else {
+          statusEl.textContent = "⏳ Idle";
+          statusEl.style.color = "#cfd0f1";
+        }
+      } catch (err) {
+        const statusEl = document.getElementById("qkdStatusCard");
+        statusEl.textContent = "❌ Error";
+        statusEl.style.color = "red";
+      }
+    }
+    setInterval(updateQKDStatus, 3000);
+    updateQKDStatus();
+  </script>
+</body>
+</html>

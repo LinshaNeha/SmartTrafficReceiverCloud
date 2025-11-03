@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Attack Simulation</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    /* ===== Sidebar ===== */
+    body {
+      background: #0e0e12;
+      color: #cdd1f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      width: 220px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: rgba(31,31,56,0.7);
+      padding: 20px 0 0 0;
+      box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      backdrop-filter: blur(10px);
+      border-right: 1px solid rgba(255,255,255,0.1);
+      z-index: 10;
+    }
+
+    .sidebar h2 {
+      color: #e5e5ee;
+      margin: 0 0 30px 0;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+    }
+
+    .sidebar li {
+      margin: 8px 0;
+    }
+
+    .sidebar a {
+      color: #cfd0f1;
+      text-decoration: none;
+      display: block;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 15px;
+      position: relative;
+      transition: all 0.3s ease;
+      z-index: 1;
+      backdrop-filter: blur(5px);
+    }
+
+    .sidebar li.active a {
+      background-color: rgba(42,42,72,0.7);
+      color: #5a5afc;
+      font-weight: 500;
+    }
+
+    .sidebar li.active a::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      background-color: rgba(31,31,56,0.7);
+      border-radius: 12px;
+      z-index: -1;
+    }
+
+    .sidebar a:hover {
+      background-color: rgba(42,42,72,0.7);
+      color: #5a5afc;
+    }
+
+    /* ===== Main area ===== */
+    .main {
+      margin-left: 220px;
+      padding: 24px;
+      flex: 1;
+      box-sizing: border-box;
+    }
+
+    h1, h3 { color: #cfe6ff; }
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    select, button {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(90,90,252,0.6);
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    select {
+      background: rgba(11,18,32,0.8);
+      border: 1px solid #2b3a4a;
+    }
+
+    .chart {
+      background: rgba(30,30,47,0.5);
+      padding: 14px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background: rgba(31,31,56,0.5);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 8px;
+      text-align: left;
+      color: #cdd1f9;
+      font-size: 13px;
+    }
+
+    th {
+      background: rgba(42,42,72,0.6);
+    }
+
+    .card {
+      background: rgba(31,31,56,0.5);
+      padding: 14px;
+      border-radius: 12px;
+      width: 140px;
+      text-align: center;
+      margin-right: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .summary-cards { display: flex; flex-wrap: wrap; }
+    .muted { color: #9aa7d6; font-size: 12px; }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Dashboard</h2>
+    <ul>
+      <li><a href="{{ url_for('index') }}">Overview Panel</a></li>
+      <li><a href="{{ url_for('traffic') }}">Traffic Monitor</a></li>
+      <li><a href="{{ url_for('ids') }}">Intrusion Detection (AI-IDS)</a></li>
+      <li><a href="{{ url_for('qkd') }}">QKD Security</a></li>
+      <li class="active"><a href="{{ url_for('attack') }}">Attack Simulation</a></li>
+      <li><a href="{{ url_for('logs') }}">Logs & Reports</a></li>
+      
+      <li><a href="{{ url_for('settings') }}">Settings</a></li>
+    </ul>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <h1>Attack Simulation</h1>
+
+  <div class="controls">
+  <label>Select Attack:</label>
+  <select id="attackType">
+    <option value="Normal">Normal</option>
+    <option value="Backdoor">Backdoor</option>
+    <option value="Analysis">Analysis</option>
+    <option value="Fuzzers">Fuzzers</option>
+    <option value="Shellcode">Shellcode</option>
+    <option value="Reconnaissance">Reconnaissance</option>
+    <option value="Exploits">Exploits</option>
+    <option value="DoS">DoS</option>
+    <option value="Worms">Worms</option>
+    <option value="Generic">Generic</option>
+  </select>
+
+  <button id="runSimBtn">Run Simulation</button>
+  <span id="lastUpdate" class="muted" style="margin-left:auto;">Last update: --</span>
+</div>
+
+
+    <!-- Timeline -->
+    <div class="chart">
+      <h3>Attack Timeline (Events per Minute)</h3>
+      <canvas id="attackTimelineChart" width="600" height="250"></canvas>
+    </div>
+
+    <!-- Top Sources Table -->
+    <h3>Top Malicious Sources</h3>
+    <table id="topSourcesTable">
+      <thead>
+        <tr><th>Source IP</th><th>Malicious Events</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Top Sources Chart -->
+    <div class="chart">
+      <h3>Top Malicious Sources (Chart)</h3>
+      <canvas id="topSourcesChart" width="600" height="250"></canvas>
+    </div>
+
+    <!-- Summary / KPI Cards -->
+    <div class="summary-cards">
+      <div class="card"><h3>Total Attacks</h3><p id="totalAttacks">0</p></div>
+      <div class="card"><h3>High Severity</h3><p id="highSeverity">0</p></div>
+      <div class="card"><h3>Medium Severity</h3><p id="mediumSeverity">0</p></div>
+      <div class="card"><h3>Low Severity</h3><p id="lowSeverity">0</p></div>
+    </div>
+  </div>
+
+  <script>
+    const attackTimelineCtx = document.getElementById('attackTimelineChart').getContext('2d');
+    const topSourcesCtx = document.getElementById('topSourcesChart').getContext('2d');
+    const lastUpdateDom = document.getElementById('lastUpdate');
+
+    let timelineChart, topSourcesChart;
+
+    const randomIP = () => `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+
+    function buildTimelineChart(data) {
+      if (timelineChart) timelineChart.destroy();
+      timelineChart = new Chart(attackTimelineCtx, {
+        type: 'line',
+        data: {
+          labels: data.map(d => d.time),
+          datasets:[{label:'Events per Minute', data:data.map(d=>d.events), borderColor:'#60a5fa', fill:false}]
+        },
+        options: { scales: { y: { beginAtZero:true } } }
+      });
+    }
+
+    function buildTopSourcesChart(data) {
+      if (topSourcesChart) topSourcesChart.destroy();
+      topSourcesChart = new Chart(topSourcesCtx, {
+        type:'bar',
+        data:{
+          labels:data.map(d=>d.ip),
+          datasets:[{label:'Malicious Events', data:data.map(d=>d.count), backgroundColor:'#34d399'}]
+        },
+        options:{ scales:{ y:{ beginAtZero:true } } }
+      });
+    }
+
+    function fetchAttackStats() {
+      const mockTimeline = Array.from({length:10}, (_,i)=>({
+        time:new Date(Date.now()-(10-i)*60000).toLocaleTimeString(),
+        events:Math.floor(Math.random()*100)
+      }));
+
+      const mockSources = Array.from({length:5}, ()=>({
+        ip:randomIP(),
+        count:Math.floor(Math.random()*500)
+      }));
+
+      buildTimelineChart(mockTimeline);
+      buildTopSourcesChart(mockSources);
+
+      const tbody = document.querySelector('#topSourcesTable tbody');
+      tbody.innerHTML = mockSources.map(s=>`<tr><td>${s.ip}</td><td>${s.count}</td></tr>`).join('');
+
+      const high = Math.floor(Math.random()*20);
+      const medium = Math.floor(Math.random()*50);
+      const low = Math.floor(Math.random()*100);
+      const total = high + medium + low;
+
+      document.getElementById('highSeverity').innerText = high;
+      document.getElementById('mediumSeverity').innerText = medium;
+      document.getElementById('lowSeverity').innerText = low;
+      document.getElementById('totalAttacks').innerText = total;
+
+      lastUpdateDom.textContent = 'Last update: ' + new Date().toLocaleTimeString();
+    }
+
+    document.getElementById('runSimBtn').addEventListener('click', ()=>{
+      const attackType = document.getElementById('attackType').value;
+      alert(`Simulation started for ${attackType} attack.`);
+      fetchAttackStats();
+    });
+
+    fetchAttackStats();
+  </script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Settings</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* ===== Body ===== */
+    body {
+      background: linear-gradient(180deg, #050527 0%, #0b0b1d 100%);
+      color: #cdd1f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      height: 100vh;
+      backdrop-filter: blur(2px);
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+  width: 220px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: linear-gradient(180deg, #1a1a34 0%, #1e1e42 100%);  /* ← THIS LINE */
+  padding: 20px 0 0 0;
+  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+    .sidebar h2 {
+      color: #ffffff;
+      margin: 0 0 30px 0;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+    }
+
+    .sidebar li {
+      margin: 8px 0;
+    }
+
+    .sidebar a {
+      color: #cfd0f1;
+      text-decoration: none;
+      display: block;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar li.active a {
+      background-color: #1b1b3a;
+      color: #4a90ff;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover {
+      background-color: #1b1b3a;
+      color: #4a90ff;
+      box-shadow: 0 0 10px rgba(74,144,255,0.4);
+    }
+
+    /* ===== Main Content ===== */
+    .main {
+      margin-left: 220px;
+      padding: 30px;
+      box-sizing: border-box;
+    }
+
+    h1, h3 {
+      color: #e4e6ff;
+      margin: 5px 0 20px 0;
+    }
+
+    /* ===== Card Styling ===== */
+    .card {
+      background: linear-gradient(180deg, rgba(20,20,45,0.9), rgba(10,10,25,0.9));
+      border-radius: 15px;
+      padding: 25px;
+      max-width: 500px;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #cdd1f9;
+      backdrop-filter: blur(10px);
+    }
+
+    .card h3 {
+      margin-bottom: 15px;
+      font-weight: 500;
+      color: #b5baff;
+    }
+
+    /* ===== Password Container ===== */
+    .password-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .password-container input {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(25,25,45,0.6);
+      color: #cdd1f9;
+      font-size: 14px;
+      outline: none;
+      transition: 0.3s all;
+    }
+
+    .password-container input:focus {
+      border-color: #4a90ff;
+      box-shadow: 0 0 8px rgba(74,144,255,0.6);
+    }
+
+    /* ===== Matching QKD Button Style ===== */
+    .password-container button {
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      background: #4263eb;
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.3s all;
+      font-size: 14px;
+      width: 150px;
+      align-self: flex-start;
+    }
+
+    .password-container button:hover {
+      background: #5a73f0;
+      box-shadow: 0 0 12px rgba(90,115,240,0.8);
+      transform: translateY(-1px);
+    }
+
+    #passwordMessage {
+      font-size: 13px;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Dashboard</h2>
+    <ul>
+      <li><a href="{{ url_for('index') }}">Overview Panel</a></li>
+      <li><a href="{{ url_for('traffic') }}">Traffic Monitor</a></li>
+      <li><a href="{{ url_for('ids') }}">Intrusion Detection (AI-IDS)</a></li>
+      <li><a href="{{ url_for('qkd') }}">QKD Security</a></li>
+      <li><a href="{{ url_for('attack') }}">Attack Simulation</a></li>
+      <li><a href="{{ url_for('logs') }}">Logs & Reports</a></li>
+      <li class="active"><a href="{{ url_for('settings') }}">Settings</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <h1>Settings</h1>
+
+    <div class="card password-card">
+      <h3 id="passwordTitle">Set / Change QKD Password</h3>
+
+      <div class="password-container">
+        <input type="password" id="currentPassword" placeholder="Enter current password" style="display:none;">
+        <input type="password" id="newPassword" placeholder="Enter new password">
+        <button onclick="savePassword()">Save Password</button>
+        <p id="passwordMessage"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function checkPasswordExistence() {
+      const currentPasswordEl = document.getElementById("currentPassword");
+      const passwordTitleEl = document.getElementById("passwordTitle");
+
+      try {
+        const res = await fetch("/password_exists");
+        const data = await res.json();
+
+        if (data.exists) {
+          currentPasswordEl.style.display = "block";
+          passwordTitleEl.innerText = "Change QKD Password";
+        } else {
+          currentPasswordEl.style.display = "none";
+          passwordTitleEl.innerText = "Set QKD Password";
+        }
+      } catch (err) {
+        console.error("Error checking password existence:", err);
+      }
+    }
+
+    async function savePassword() {
+      const currentPasswordEl = document.getElementById("currentPassword");
+      const currentPassword = currentPasswordEl.value;
+      const newPassword = document.getElementById("newPassword").value;
+      const msgEl = document.getElementById("passwordMessage");
+      msgEl.textContent = "";
+
+      if (!newPassword) {
+        msgEl.textContent = "Please enter a new password";
+        msgEl.style.color = "orange";
+        return;
+      }
+
+      if (currentPasswordEl.style.display !== "none") {
+        if (!currentPassword) {
+          msgEl.textContent = "Please enter current password";
+          msgEl.style.color = "orange";
+          return;
+        }
+
+        const verifyRes = await fetch("/verify_password", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({password: currentPassword})
+        });
+
+        const verifyData = await verifyRes.json();
+
+        if (!verifyData.success) {
+          msgEl.textContent = "Current password is incorrect";
+          msgEl.style.color = "red";
+          return;
+        }
+      }
+
+      const setRes = await fetch("/set_password", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({password: newPassword})
+      });
+
+      const setData = await setRes.json();
+
+      if (setData.status) {
+        msgEl.textContent = "Password saved successfully";
+        msgEl.style.color = "limegreen";
+        currentPasswordEl.value = "";
+        document.getElementById("newPassword").value = "";
+        checkPasswordExistence();
+      } else {
+        msgEl.textContent = "Failed to save password";
+        msgEl.style.color = "red";
+      }
+    }
+
+    checkPasswordExistence();
+  </script>
+</body>
+</html>
+
+
+

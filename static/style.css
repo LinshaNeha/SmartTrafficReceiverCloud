@@ -1,0 +1,146 @@
+body { 
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #111343, #1e0745); /* dark violet-blue gradient */
+  color: #cdd1f9; /* soft lavender text */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: #1f1f38; /* ⬅️ updated to match your screenshot */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #1f1f38;
+}
+
+.sidebar h2 {
+  color: #7088ff; /* glowing blue-violet */
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* ✅ Sidebar links white + no underline */
+.sidebar ul li a {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.sidebar ul li {
+  padding: 12px 16px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  color: #d1d4f0;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+
+.sidebar ul li.active,
+.sidebar ul li:hover {
+  background: #2a2a48; /* subtle highlight like your screenshot */
+  color: #ffffff;
+}
+
+.sidebar ul li a:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  padding: 20px;
+  background: transparent;
+  overflow-y: auto;
+}
+
+.main h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #7088ff;
+}
+
+/* Cards */
+.card {
+  background: linear-gradient(180deg, #262656, #1d1d3c); /* soft indigo gradient */
+  border: 1px solid #34346a;
+  border-radius: 12px;
+  padding: 16px;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 16px rgba(112, 136, 255, 0.3);
+}
+
+.card h3 {
+  font-size: 15px;
+  margin-bottom: 8px;
+  color: #cdd1f9;
+}
+
+.card p {
+  font-size: 20px;
+  font-weight: bold;
+  color: #41f497; /* neon green */
+}
+
+/* Charts */
+.chart {
+  background: linear-gradient(180deg, #262656, #1d1d3c);
+  border: 1px solid #34346a;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.chart h3 {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: #7088ff;
+}
+
+/* Tables */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  background: linear-gradient(180deg, #2a2a5c, #1c1c3a);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.data-table th, 
+.data-table td {
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.data-table th {
+  background: #2e2e62;
+  color: #41f497; /* neon green headers */
+  font-weight: 600;
+}
+
+.data-table tr:nth-child(even) {
+  background: rgba(40, 40, 90, 0.8);
+}
+
+.data-table tr:hover {
+  background: rgba(112, 136, 255, 0.15);
+}
+
+/* QKD Key Output */
+#qkdKeyOutput {
+  color: #41f497;
+  font-size: 16px;
+  font-weight: bold;
+  display: block;
+  margin-top: 8px;
+  word-break: break-all;
+}

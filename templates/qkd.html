@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QKD Security - Smart Traffic Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* Fix Sidebar + Appearance */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #000000;
+      color: #cfd0f1;
+    }
+
+    .sidebar {
+      width: 220px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #14152a;
+      margin: 0;
+      padding: 20px 0 0 0;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.4);
+    }
+
+    .sidebar h2 {
+      color: #ebebef;
+      text-align: center;
+      margin: 0 0 30px 0;
+      font-size: 20px;
+    }
+
+    .sidebar ul {
+      list-style: none;  /*   removes bullets */
+      margin: 0;
+      padding: 0;
+    }
+
+    .sidebar ul li {
+      margin: 5px 0;
+    }
+
+    .sidebar ul li a {
+      text-decoration: none;
+      color: #cfd0f1;
+      display: block;
+      padding: 12px 20px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar ul li.active a,
+    .sidebar ul li a:hover {
+      background-color: #1f1f38;
+      color: #f7f7f8;
+    }
+
+    .main {
+      margin-left: 220px; /*   matches sidebar */
+      padding: 30px;
+    }
+
+    h1 {
+      color: #5a5afc;
+    }
+
+  /* Cards & Layout */
+.cards {
+  display: flex;
+  gap: 25px;            /* slightly increased gap for better spacing */
+  flex-wrap: wrap;       /* ensures cards wrap on smaller screens */
+  justify-content: flex-start; /* align cards nicely to the left */
+  margin-bottom: 30px;   /* space below the cards section */
+}
+
+.card {
+  background-color: #1f1f38;
+  border-radius: 10px;
+  padding: 20px;
+  width: 300px;          /* fixed width for uniformity */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.key-card {
+  width: 400px;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+}
+
+.card h3 {
+  color: #8aa2f7;
+  margin-bottom: 12px;  /* more spacing under title */
+}
+
+.card p {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+    button {
+      background-color: #5a5afc;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      margin: 5px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #4a49d1;
+    }
+
+    /* Modal */
+    #passwordModal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #passwordModal div {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      width: 300px;
+    }
+
+    #passwordModal input {
+      margin: 10px 0;
+      padding: 6px;
+      width: 90%;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #111;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Dashboard</h2>
+    <ul>
+      <li><a href="{{ url_for('index') }}">Overview Panel</a></li>
+      <li><a href="{{ url_for('traffic') }}">Traffic Monitor</a></li>
+      <li><a href="{{ url_for('ids') }}">Intrusion Detection (AI-IDS)</a></li>
+      <li class="active"><a href="{{ url_for('qkd') }}">QKD Security</a></li>
+      <li><a href="{{ url_for('attack') }}">Attack Simulation</a></li>
+      <li><a href="{{ url_for('logs') }}">Logs & Reports</a></li>
+      <li><a href="{{ url_for('settings') }}">Settings</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <section>
+      <h1>Quantum Key Distribution (QKD) Security</h1>
+      
+      <div class="cards">
+        <!-- Status card -->
+        <div class="card">
+          <h3>QKD Status</h3>
+          <p id="qkdStatus">⏳ Idle</p>
+        </div>
+
+        <!-- Unlock & view key card -->
+        <div class="card key-card">
+          <h3>QKD Key</h3>
+          <p id="qkdKeyDisplay"> Locked</p>
+          <button id="unlockKeyBtn"> Unlock Key</button>
+          <button id="lockKeyBtn" style="display:none;">Lock Key</button>
+        </div>
+      </div>
+
+      <div class="charts">
+        <div class="chart">
+          <h3>QKD Events Log</h3>
+          <pre id="qkdLogs" style="background:#111; color:#0f0; padding:10px; height:200px; overflow-y:auto;">
+Waiting for events...
+          </pre>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Password Modal -->
+  <div id="passwordModal">
+    <div>
+      <h3>Enter QKD Password</h3>
+      <input type="password" id="unlockPassword" placeholder="Password">
+      <br>
+      <button onclick="verifyUnlock()">Submit</button>
+      <p id="unlockMessage"></p>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Update QKD Status
+    async function updateQKDStatus() {
+      try {
+        const res = await fetch("/get_qkd_status");
+        const data = await res.json();
+        const statusEl = document.getElementById("qkdStatus");
+
+        if (data.status === "Active") {
+          statusEl.textContent = "  Received";
+          statusEl.style.color = "lightgreen";
+        } else {
+          statusEl.textContent = "⏳ Idle";
+          statusEl.style.color = "gray";
+        }
+      } catch (err) {
+        const statusEl = document.getElementById("qkdStatus");
+        statusEl.textContent = "  Error fetching status";
+        statusEl.style.color = "red";
+      }
+    }
+
+    // Unlock key modal
+    document.getElementById("unlockKeyBtn").addEventListener("click", () => {
+      document.getElementById("passwordModal").style.display = "flex";
+      document.getElementById("unlockPassword").value = "";
+      document.getElementById("unlockMessage").textContent = "";
+    });
+
+    // Verify password and fetch key
+    async function verifyUnlock() {
+      const password = document.getElementById("unlockPassword").value;
+      const msgEl = document.getElementById("unlockMessage");
+
+      try {
+        const res = await fetch("/verify_password", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({password})
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          if (data.key) {
+            document.getElementById("qkdKeyDisplay").textContent = " " + data.key;
+            document.getElementById("qkdKeyDisplay").style.color = "lightgreen";
+            document.getElementById("unlockKeyBtn").style.display = "none";
+            document.getElementById("lockKeyBtn").style.display = "inline-block";
+            document.getElementById("passwordModal").style.display = "none";
+
+            document.getElementById("qkdLogs").textContent += `\n[${new Date().toLocaleTimeString()}] Key unlocked`;
+          }
+        } else {
+          msgEl.textContent = "  Wrong password!";
+          msgEl.style.color = "red";
+          document.getElementById("unlockPassword").value = "";
+        }
+      } catch (err) {
+        msgEl.textContent = "  Server error!";
+        msgEl.style.color = "red";
+      }
+    }
+
+    // Lock key
+    document.getElementById("lockKeyBtn").addEventListener("click", () => {
+      document.getElementById("qkdKeyDisplay").textContent = " Locked";
+      document.getElementById("qkdKeyDisplay").style.color = "gray";
+      document.getElementById("unlockKeyBtn").style.display = "inline-block";
+      document.getElementById("lockKeyBtn").style.display = "none";
+
+      document.getElementById("qkdLogs").textContent += `\n[${new Date().toLocaleTimeString()}] Key locked`;
+    });
+
+    // Auto refresh QKD Status
+    setInterval(updateQKDStatus, 3000);
+    updateQKDStatus();
+  </script>
+</body>
+</html>
+

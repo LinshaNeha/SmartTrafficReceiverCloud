@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Intrusion Detection - Smart Traffic Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<style>
+body { background:#0e0e12; color:#cdd1f9; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; }
+.sidebar { width:220px; height:100vh; position:fixed; top:0; left:0; background:rgba(31,31,56,0.7); padding:20px 0 0 0; box-shadow:2px 0 20px rgba(0,0,0,0.5); display:flex; flex-direction:column; align-items:center; backdrop-filter:blur(10px); border-right:1px solid rgba(255,255,255,0.1); }
+.sidebar h2 { color:#e5e5ee; margin:0 0 30px 0; font-size:20px; text-align:center; }
+.sidebar ul { list-style:none; padding:0; margin:0; width:100%; }
+.sidebar li { margin:8px 0; }
+.sidebar a { color:#cfd0f1; text-decoration:none; display:block; padding:12px 20px; border-radius:12px; font-size:15px; transition:all 0.3s ease; z-index:1; backdrop-filter:blur(5px); }
+.sidebar li.active a { background-color:rgba(42,42,72,0.7); color:#5a5afc; font-weight:500; }
+.sidebar a:hover { background-color:rgba(42,42,72,0.7); color:#5a5afc; }
+.main { margin-left:220px; padding:20px; box-sizing:border-box; }
+.summary-cards { display:flex; gap:20px; margin-bottom:20px; flex-wrap:wrap; }
+.card { background:rgba(31,31,56,0.5); border-radius:15px; padding:20px; width:220px; box-shadow:0 8px 32px 0 rgba(0,0,0,0.37); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1); text-align:center; color:#cdd1f9; font-weight:500; transition:transform 0.3s ease, box-shadow 0.3s ease; }
+.card:hover { transform:translateY(-5px); box-shadow:0 12px 24px rgba(90,90,252,0.6); }
+.charts { display:grid; grid-template-columns:repeat(auto-fit,minmax(350px,1fr)); gap:20px; margin-bottom:20px; }
+.chart { background:rgba(30,30,47,0.5); padding:15px; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.37); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.1); }
+.chart.no-count-box { padding-top:0; }
+table { width:100%; border-collapse:collapse; margin-bottom:20px; background:rgba(31,31,56,0.5); backdrop-filter:blur(8px); border-radius:12px; overflow:hidden; }
+th, td { border:1px solid rgba(255,255,255,0.1); padding:8px; text-align:center; font-size:14px; color:#cdd1f9; }
+th { background:rgba(42,42,72,0.6); }
+tbody tr:nth-child(even){ background:rgba(31,31,56,0.3); }
+tbody tr:hover { background:rgba(42,42,72,0.5); }
+button { margin-right:10px; padding:10px 16px; background:rgba(90,90,252,0.6); border:none; border-radius:12px; color:white; font-weight:500; cursor:pointer; transition:all 0.3s ease; backdrop-filter:blur(4px); }
+button:hover { background:rgba(90,90,252,0.8); box-shadow:0 0 10px rgba(90,90,252,0.7); }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>Dashboard</h2>
+    <ul>
+        <li><a href="{{ url_for('index') }}">Overview Panel</a></li>
+        <li><a href="{{ url_for('traffic') }}">Traffic Monitor</a></li>
+        <li class="active"><a href="{{ url_for('ids') }}">Intrusion Detection (AI-IDS)</a></li>
+        <li><a href="{{ url_for('qkd') }}">QKD Security</a></li>
+        <li><a href="{{ url_for('attack') }}">Attack Simulation</a></li>
+        <li><a href="{{ url_for('logs') }}">Logs & Reports</a></li>
+        <li><a href="{{ url_for('settings') }}">Settings</a></li>
+    </ul>
+</div>
+
+<div class="main">
+    <h1>Intrusion Detection (AI-IDS)</h1>
+    <div class="summary-cards">
+        <div class="card" id="totalPackets">Total Packets: 0</div>
+        <div class="card" id="attackPackets">Attack Packets: 0</div>
+        <div class="card" id="latestAttack">Latest Attack: N/A</div>
+        <div class="card" id="mostFreqAttack">Most Frequent Attack: N/A</div>
+    </div>
+
+    <button onclick="downloadJSON()">Export JSON</button>
+    <button onclick="downloadPDF()">Export PDF</button>
+
+    <div class="charts">
+        <div class="chart"><h3>Real-time Packet Size</h3><canvas id="lineChart"></canvas></div>
+        <div class="chart no-count-box"><h3>Protocol Distribution</h3><canvas id="protocolChart"></canvas></div>
+        <div class="chart no-count-box"><h3>Attack Categories</h3><canvas id="attackCategoriesChart"></canvas></div>
+        <div class="chart"><h3>Severity Levels</h3><canvas id="severityPieChart"></canvas></div>
+        <div class="chart"><h3>Attack Timeline</h3><canvas id="attackTimeline"></canvas></div>
+    </div>
+
+    <h2>Detected Intrusions</h2>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Event ID</th>
+                <th>Source IP</th>
+                <th>Destination IP</th>
+                <th>Protocol</th>
+                <th>Attack</th>
+                <th>IDS Score</th>
+                <th>Severity</th>
+            </tr>
+        </thead>
+        <tbody id="idsTable"></tbody>
+    </table>
+</div>
+
+<script>
+let charts = {};
+let latestData = [];
+const blueShades = ["rgba(90,90,252,0.5)","rgba(100,120,255,0.5)","rgba(80,160,255,0.5)","rgba(70,190,255,0.5)","rgba(50,200,255,0.5)","rgba(30,220,255,0.5)","rgba(60,100,255,0.5)","rgba(120,120,255,0.5)"];
+
+async function fetchIDSData(){
+    try{
+        const res = await fetch("/get_traffic_data");
+        const raw = await res.json();
+        const data = raw.decrypted || [];
+        latestData = data;
+        updateIDS(data);
+    }catch(err){ console.error("IDS fetch error:",err); }
+}
+
+function updateIDS(data){
+    const packets = data.map(d=>d.data||{});
+    const totalPackets = packets.length;
+    const attackPackets = packets.filter(d=>(d.attack_cat && d.attack_cat!=="normal")).length;
+    const latestAttack = packets.length>0 ? (packets[packets.length-1].attack_cat||"N/A") : "N/A";
+
+    const attackCounts={};
+    packets.forEach(d=>{
+        const cat = (d.attack_cat ? d.attack_cat : (d.label===0?"normal":"attack"));
+        attackCounts[cat] = (attackCounts[cat]||0)+1;
+    });
+    const mostFreqAttack = Object.keys(attackCounts).filter(k=>"normal"!==k).sort((a,b)=>attackCounts[b]-attackCounts[a])[0] || "N/A";
+
+    document.getElementById("totalPackets").innerText=`Total Packets: ${totalPackets}`;
+    document.getElementById("attackPackets").innerText=`Attack Packets: ${attackPackets}`;
+    document.getElementById("latestAttack").innerText=`Latest Attack: ${latestAttack}`;
+    document.getElementById("mostFreqAttack").innerText=`Most Frequent Attack: ${mostFreqAttack}`;
+
+    const tableBody=document.getElementById("idsTable");
+    tableBody.innerHTML="";
+    packets.slice(-20).forEach((row, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${row["Event ID"] || "N/A"}</td>
+            <td>${row["Source IP"] || "N/A"}</td>
+            <td>${row["Destination IP"] || "N/A"}</td>
+            <td>${row["Protocol"] || "N/A"}</td>
+            <td>${row.attack_cat || "N/A"}</td>
+            <td>${row["IDS Score"] || "N/A"}</td>
+            <td>${row.Severity || "Unknown"}</td>
+        `;
+        tableBody.appendChild(tr);
+    });
+
+    const timestamps = packets.map((d,i)=>d.Timestamp||i);
+    const packetSizes = packets.map(d=>d["Packet Size"]||0);
+    const protocols={}, severities={}, attacksOverTime=[];
+    packets.forEach(d=>{
+        const proto=d.Protocol||"Other"; protocols[proto]=(protocols[proto]||0)+1;
+        const sev=d.Severity||"Unknown"; severities[sev]=(severities[sev]||0)+1;
+        const cat=d.attack_cat||"normal"; attacksOverTime.push(cat!=="normal"?1:0);
+    });
+
+    updateChart("line","lineChart",timestamps,packetSizes,"Packet Size",blueShades[0]);
+    updateChart("bar","protocolChart",Object.keys(protocols),Object.values(protocols),"",blueShades,true);
+    updateChart("bar","attackCategoriesChart",Object.keys(attackCounts),Object.values(attackCounts),"",blueShades,true);
+    updateChart("pie","severityPieChart",Object.keys(severities),Object.values(severities),"",blueShades,true);
+    updateChart("line","attackTimeline",timestamps,attacksOverTime,"Attacks",blueShades[1]);
+}
+
+function updateChart(type,id,labels,data,label,color,multiLegend=false){
+    if(charts[id]) charts[id].destroy();
+    const backgroundColor = Array.isArray(color)? color.slice(0,labels.length) : color;
+    charts[id]=new Chart(document.getElementById(id),{
+        type:type,
+        data:{ labels:labels, datasets:[{ label:multiLegend?"":label, data:data, backgroundColor:multiLegend?backgroundColor:color, borderColor:color, fill:type==="line"?true:false }]},
+        options:{ responsive:true, plugins:{ legend:{ display: id==="protocolChart"||id==="attackCategoriesChart"?false:true, labels:{ color:"#cdd1f9" } } },
+            scales:{ x:{ticks:{color:"#cdd1f9"},grid:{color:"rgba(255,255,255,0.05)"}}, y:{ticks:{color:"#cdd1f9"},grid:{color:"rgba(255,255,255,0.05)"}} }
+        }
+    });
+}
+
+function downloadJSON(){
+    const blob=new Blob([JSON.stringify(latestData,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a"); a.href=url; a.download="ids_logs.json"; a.click();
+}
+
+function downloadPDF(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y=10;
+    const now=new Date();
+    doc.setFontSize(16); doc.text("Intrusion Detection (AI-IDS) Report",10,y); y+=10;
+    doc.setFontSize(10); doc.text(`Generated on: ${now.toLocaleString()}`,10,y); y+=10;
+
+    const totalPackets=document.getElementById("totalPackets").innerText.replace("Total Packets: ","");
+    const attackPackets=document.getElementById("attackPackets").innerText.replace("Attack Packets: ","");
+    const latestAttack=document.getElementById("latestAttack").innerText.replace("Latest Attack: ","");
+    const mostFreqAttack=document.getElementById("mostFreqAttack").innerText.replace("Most Frequent Attack: ","");
+
+    doc.text(`Total Packets: ${totalPackets}`,10,y); y+=6;
+    doc.text(`Attack Packets: ${attackPackets}`,10,y); y+=6;
+    doc.text(`Latest Attack: ${latestAttack}`,10,y); y+=6;
+    doc.text(`Most Frequent Attack: ${mostFreqAttack}`,10,y); y+=10;
+
+    const tableData = latestData.slice(-20).map((d, i) => {
+        const r = d.data || {};
+        return [
+            i + 1,
+            r["Event ID"] || "N/A",
+            r["Source IP"] || "N/A",
+            r["Destination IP"] || "N/A",
+            r["Protocol"] || "N/A",
+            r.attack_cat || "N/A",
+            r["IDS Score"] || "N/A",
+            r.Severity || "Unknown"
+        ];
+    });
+
+    doc.autoTable({
+        head: [["#", "Event ID", "Source IP", "Destination IP", "Protocol", "Attack", "IDS Score", "Severity"]],
+        body: tableData,
+        startY: y,
+        theme:'grid',
+        headStyles:{fillColor:[90,90,252]},
+        styles:{fontSize:8,cellPadding:2}
+    });
+
+    doc.save("ids_report.pdf");
+}
+
+setInterval(fetchIDSData,5000);
+fetchIDSData();
+</script>
+</body>
+</html>
+
+
