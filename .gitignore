@@ -1,0 +1,7 @@
+api/*.json
+__pycache__/
+*.pkl
+*.h5
+*.csv
+*.log
+instance/
