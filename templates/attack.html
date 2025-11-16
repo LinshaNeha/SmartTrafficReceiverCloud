@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,158 +8,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
-    /* ===== Sidebar ===== */
     body {
-      background: #0e0e12;
-      color: #cdd1f9;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Arial, sans-serif;
       margin: 0;
-    }
-
-    /* ===== Sidebar ===== */
-    .sidebar {
-      width: 220px;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      background: #1f1f38;
-      padding: 20px 0 0 0;
-      box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      min-height: 100vh;
+      background: #0f1724;
+      color: #e6eef8;
     }
-
-    .sidebar h2 {
-      color: #e5e5ee;
-      margin: 0 0 30px 0;
-      font-size: 20px;
-      text-align: center;
-    }
-
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      width: 100%;
-    }
-
-    .sidebar li {
-      margin: 8px 0;
-    }
-
-    .sidebar a {
-      color: #cfd0f1;
-      text-decoration: none;
-      display: block;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 15px;
-      transition: all 0.3s ease;
-    }
-
-    .sidebar li.active a {
-      background-color: #2a2a48;
-      color: #5a5afc;
-      font-weight: 500;
-    }
-
-    .sidebar a:hover {
-      background-color: #2a2a48;
-      color: #5a5afc;
-    }
-
-    /* ===== Main area ===== */
-    .main {
-      margin-left: 220px;
-      padding: 24px;
-      flex: 1;
+    .sidebar {
+      width: 300px;
+      background: #081029;
+      padding: 20px;
       box-sizing: border-box;
     }
-
+    .sidebar h2 { color: #9cc7ff; margin-bottom: 10px; }
+    .sidebar a { color: #dbefff; text-decoration: none; }
+    .sidebar a:hover { text-decoration: underline; }
+    .sidebar .active a { font-weight: bold; color: #fff; }
+    .main { flex: 1; padding: 24px; }
+    .chart { background: #071223; padding: 12px; border-radius: 8px; margin-bottom: 20px; }
     h1, h3 { color: #cfe6ff; }
-    .controls {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-
     select, button {
-      padding: 10px 14px;
-      border-radius: 12px;
-      border: none;
-      background: rgba(90,90,252,0.6);
-      color: white;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    select {
-      background: rgba(11,18,32,0.8);
+      padding: 8px 10px;
+      border-radius: 6px;
       border: 1px solid #2b3a4a;
+      background: #0b1220;
+      color: #e6eef8;
+      cursor: pointer;
     }
-
-    .chart {
-      background: rgba(30,30,47,0.5);
-      padding: 14px;
-      border-radius: 12px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.37);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
     table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 20px;
-      background: rgba(31,31,56,0.5);
-      border-radius: 10px;
-      overflow: hidden;
     }
-
     th, td {
-      border: 1px solid rgba(255,255,255,0.1);
       padding: 8px;
+      border-bottom: 1px solid #25314a;
       text-align: left;
-      color: #cdd1f9;
-      font-size: 13px;
     }
-
-    th {
-      background: rgba(42,42,72,0.6);
-    }
-
     .card {
-      background: rgba(31,31,56,0.5);
-      padding: 20px;
-      border-radius: 15px;
-      width: 220px;
-      text-align: center;
-      margin-right: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.37);
-      border: 1px solid rgba(255,255,255,0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background: #071223;
+      padding: 12px;
+      border-radius: 8px;
+      min-width: 180px;
+      margin: 10px 10px 10px 0;
     }
-
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 24px rgba(90, 90, 252, 0.6);
-    }
-
     .summary-cards { display: flex; flex-wrap: wrap; }
-    .muted { color: #9aa7d6; font-size: 12px; }
   </style>
 </head>
 
 <body>
-  <!-- Sidebar -->
   <div class="sidebar">
     <h2>Dashboard</h2>
     <ul>
@@ -169,39 +68,39 @@
       <li><a href="{{ url_for('qkd') }}">QKD Security</a></li>
       <li class="active"><a href="{{ url_for('attack') }}">Attack Simulation</a></li>
       <li><a href="{{ url_for('logs') }}">Logs & Reports</a></li>
-      
+      <li><a href="{{ url_for('health') }}">System Health</a></li>
       <li><a href="{{ url_for('settings') }}">Settings</a></li>
     </ul>
   </div>
 
-  <!-- Main -->
   <div class="main">
     <h1>Attack Simulation</h1>
 
-  <div class="controls">
-  <label>Select Attack:</label>
-  <select id="attackType">
-    <option value="Normal">Normal</option>
-    <option value="Backdoor">Backdoor</option>
-    <option value="Analysis">Analysis</option>
-    <option value="Fuzzers">Fuzzers</option>
-    <option value="Shellcode">Shellcode</option>
-    <option value="Reconnaissance">Reconnaissance</option>
-    <option value="Exploits">Exploits</option>
-    <option value="DoS">DoS</option>
-    <option value="Worms">Worms</option>
-    <option value="Generic">Generic</option>
-  </select>
+    <div class="controls">
+      <label>Select Attack:</label>
+      <select id="attackType">
+        <option value="DoS">DoS</option>
+        <option value="DDoS">DDoS</option>
+        <option value="PortScan">Port Scan</option>
+      </select>
+      <button id="runSimBtn">Run Simulation</button>
+      <span id="lastUpdate" style="margin-left:auto; font-size:14px;">Last update: --</span>
+    </div>
 
-  <button id="runSimBtn">Run Simulation</button>
-  <span id="lastUpdate" class="muted" style="margin-left:auto;">Last update: --</span>
-</div>
+    <div>
+      <label for="timeRange">Select Time Range:</label>
+      <select id="timeRange">
+        <option value="1m">Last 5 Minutes</option>
+        <option value="1h">Last 1 Hour</option>
+        <option value="24h">Last 24 Hours</option>
+      </select>
+      <button onclick="fetchAttackStats()">Re-query</button>
+    </div>
 
-
-    <!-- Timeline -->
+    <!-- Attack Timeline -->
     <div class="chart">
       <h3>Attack Timeline (Events per Minute)</h3>
-      <canvas id="attackTimelineChart" width="600" height="250"></canvas>
+      <canvas id="attackTimelineChart"></canvas>
     </div>
 
     <!-- Top Sources Table -->
@@ -216,12 +115,11 @@
     <!-- Top Sources Chart -->
     <div class="chart">
       <h3>Top Malicious Sources (Chart)</h3>
-      <canvas id="topSourcesChart" width="600" height="250"></canvas>
+      <canvas id="topSourcesChart"></canvas>
     </div>
 
-    <!-- Summary / KPI Cards -->
+    <!-- Severity Cards -->
     <div class="summary-cards">
-      <div class="card"><h3>Total Attacks</h3><p id="totalAttacks">0</p></div>
       <div class="card"><h3>High Severity</h3><p id="highSeverity">0</p></div>
       <div class="card"><h3>Medium Severity</h3><p id="mediumSeverity">0</p></div>
       <div class="card"><h3>Low Severity</h3><p id="lowSeverity">0</p></div>
@@ -235,71 +133,85 @@
 
     let timelineChart, topSourcesChart;
 
+    // Helper - generate random IP
     const randomIP = () => `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
 
+    // === Build Charts ===
     function buildTimelineChart(data) {
       if (timelineChart) timelineChart.destroy();
       timelineChart = new Chart(attackTimelineCtx, {
         type: 'line',
         data: {
           labels: data.map(d => d.time),
-          datasets:[{label:'Events per Minute', data:data.map(d=>d.events), borderColor:'#60a5fa', fill:false}]
+          datasets: [{
+            label: 'Events per Minute',
+            data: data.map(d => d.events),
+            borderColor: '#3b82f6',
+            fill: false
+          }]
         },
-        options: { scales: { y: { beginAtZero:true } } }
+        options: { scales: { y: { beginAtZero: true } } }
       });
     }
 
     function buildTopSourcesChart(data) {
       if (topSourcesChart) topSourcesChart.destroy();
       topSourcesChart = new Chart(topSourcesCtx, {
-        type:'bar',
-        data:{
-          labels:data.map(d=>d.ip),
-          datasets:[{label:'Malicious Events', data:data.map(d=>d.count), backgroundColor:'#34d399'}]
+        type: 'bar',
+        data: {
+          labels: data.map(d => d.ip),
+          datasets: [{
+            label: 'Malicious Events',
+            data: data.map(d => d.count),
+            backgroundColor: '#22c55e'
+          }]
         },
-        options:{ scales:{ y:{ beginAtZero:true } } }
+        options: { scales: { y: { beginAtZero: true } } }
       });
     }
 
+    // === Fetch Attack Stats ===
     function fetchAttackStats() {
-      const mockTimeline = Array.from({length:10}, (_,i)=>({
-        time:new Date(Date.now()-(10-i)*60000).toLocaleTimeString(),
-        events:Math.floor(Math.random()*100)
+      const mockTimeline = Array.from({ length: 10 }, (_, i) => ({
+        time: new Date(Date.now() - (10 - i) * 60000).toLocaleTimeString(),
+        events: Math.floor(Math.random() * 100)
       }));
 
-      const mockSources = Array.from({length:5}, ()=>({
-        ip:randomIP(),
-        count:Math.floor(Math.random()*500)
+      const mockSources = Array.from({ length: 5 }, () => ({
+        ip: randomIP(),
+        count: Math.floor(Math.random() * 500)
       }));
 
       buildTimelineChart(mockTimeline);
       buildTopSourcesChart(mockSources);
 
       const tbody = document.querySelector('#topSourcesTable tbody');
-      tbody.innerHTML = mockSources.map(s=>`<tr><td>${s.ip}</td><td>${s.count}</td></tr>`).join('');
+      tbody.innerHTML = mockSources.map(s => `<tr><td>${s.ip}</td><td>${s.count}</td></tr>`).join('');
 
-      const high = Math.floor(Math.random()*20);
-      const medium = Math.floor(Math.random()*50);
-      const low = Math.floor(Math.random()*100);
-      const total = high + medium + low;
-
-      document.getElementById('highSeverity').innerText = high;
-      document.getElementById('mediumSeverity').innerText = medium;
-      document.getElementById('lowSeverity').innerText = low;
-      document.getElementById('totalAttacks').innerText = total;
+      document.getElementById('highSeverity').innerText = Math.floor(Math.random() * 20);
+      document.getElementById('mediumSeverity').innerText = Math.floor(Math.random() * 50);
+      document.getElementById('lowSeverity').innerText = Math.floor(Math.random() * 100);
 
       lastUpdateDom.textContent = 'Last update: ' + new Date().toLocaleTimeString();
     }
 
-    document.getElementById('runSimBtn').addEventListener('click', ()=>{
+    // === Run Simulation ===
+    async function runSimulation() {
       const attackType = document.getElementById('attackType').value;
+      // Here we simulate a backend call (replace with fetch to Flask)
+      console.log("Simulating attack:", attackType);
       alert(`Simulation started for ${attackType} attack.`);
       fetchAttackStats();
-    });
+    }
 
-    fetchAttackStats();
+    // === Fetch Traffic Data (placeholder) ===
+    function fetchTrafficData() {
+      fetchAttackStats();
+    }
+
+    // Initialize
+    fetchTrafficData();
   </script>
 </body>
 </html>
-
 
