@@ -1,227 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Attack Simulation</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Same QKD UI Style -->
   <style>
-    body { 
-  background: #0e0e12; 
-  color: white; 
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-  margin: 0; 
-}
-
-/* ===== Sidebar ===== */
-.sidebar { 
-  width: 220px; 
-  height: 100vh; 
-  position: fixed; 
-  top: 0; 
-  left: 0; 
-  background: #1f1f38;   /* deep navy tone */
-  padding: 20px 0 0 0; 
-  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.sidebar h2 { 
-  color: #e5e5ee;
-  margin: 0 0 30px 0;
-  font-size: 20px;
-  text-align: center;
-}
-
-/* Sidebar Menu */
-.sidebar ul { 
-  list-style: none; 
-  padding: 0; 
-  margin: 0; 
-  width: 100%;
-}
-
-.sidebar li { 
-  margin: 8px 0;
-}
-
-.sidebar a { 
-  color: #cfd0f1; 
-  text-decoration: none; 
-  display: block; 
-  padding: 12px 20px;
-  border-radius: 6px;
-  font-size: 15px;
-  position: relative;       /* needed for pseudo-element */
-  transition: all 0.3s ease;
-  z-index: 1;               /* ensures text is above ::before */
-}
-
-/* ===== Active & Hover States ===== */
-.sidebar li.active a {
-  position: relative;
-  background-color: #2a2a48; /* outer box */
-  color: #5a5afc;             /* blue text */
-  font-weight: 500;
-  z-index: 1;                 /* text above pseudo-element */
-}
-
-.sidebar li.active a::before {
-  content: "";
-  position: absolute;
-  inset: 4px;
-  background-color: #1f1f38; /* inner dark box */
-  border-radius: 6px;
-  z-index: -1;               /* behind text */
-}
-
-.sidebar a:hover {
-  background-color: #2a2a48;
-  color: #5a5afc;
-}
-
-/* ===== Main Content ===== */
-.main { 
-  margin-left: 220px; 
-  padding: 20px; 
-  box-sizing: border-box; 
-}
-
-/* ===== Summary Cards ===== */
-.summary-cards { 
-  display: flex; 
-  gap: 20px; 
-  margin-bottom: 20px; 
-  flex-wrap: wrap; 
-}
-
-.card {
-  background-color: #1f1f38;
-  border-radius: 10px;
-  padding: 20px;
-  width: 220px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.6);
-}
-
-/* ===== Charts ===== */
-.charts { 
-  display: grid; 
-  grid-template-columns: 1fr 1fr; 
-  gap: 20px; 
-  margin-bottom: 20px; 
-}
-
-.chart { 
-  background: #1e1e2f; 
-  padding: 15px; 
-  border-radius: 10px; 
-}
-
-/* ===== Tables ===== */
-table { 
-  width: 100%; 
-  border-collapse: collapse; 
-  margin-bottom: 20px; 
-}
-
-th, td { 
-  border: 1px solid #555; 
-  padding: 5px; 
-  vertical-align: top; 
-  text-align: center; 
-}
-
-pre { 
-  white-space: pre-wrap; 
-  word-break: break-word; 
-  color: #ccc; 
-}
-
-/* ===== Headings ===== */
-h1,h2,h3 { 
-  color: white; 
-  margin: 5px 0; 
-}
-
-/* ===== Buttons ===== */
-button { 
-  margin-right: 10px; 
-  padding: 8px 12px; 
-  background: #4CAF50; 
-  border: none; 
-  border-radius: 5px; 
-  cursor: pointer; 
-}
-
-button:hover { 
-  background: #45a049; 
-}
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+      background: #0f1724;
+      color: #e6eef8;
+    }
+    .sidebar {
+      width: 300px;
+      background: #081029;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .sidebar h2 { color: #9cc7ff; margin-bottom: 10px; }
+    .sidebar a { color: #dbefff; text-decoration: none; }
+    .sidebar a:hover { text-decoration: underline; }
+    .sidebar .active a { font-weight: bold; color: #fff; }
+    .main { flex: 1; padding: 24px; }
+    .chart { background: #071223; padding: 12px; border-radius: 8px; margin-bottom: 20px; }
+    h1, h3 { color: #cfe6ff; }
+    select, button {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #2b3a4a;
+      background: #0b1220;
+      color: #e6eef8;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid #25314a;
+      text-align: left;
+    }
+    .card {
+      background: #071223;
+      padding: 12px;
+      border-radius: 8px;
+      min-width: 180px;
+      margin: 10px 10px 10px 0;
+    }
+    .summary-cards { display: flex; flex-wrap: wrap; }
   </style>
 </head>
 
 <body>
-
-  <!-- Sidebar -->
   <div class="sidebar">
     <h2>Dashboard</h2>
     <ul>
-      <li><a href="#">Overview Panel</a></li>
-      <li><a href="#">Traffic Monitor</a></li>
-      <li><a href="#">Intrusion Detection (AI-IDS)</a></li>
-      <li><a href="#">QKD Security</a></li>
-      <li class="active"><a href="#">Attack Simulation</a></li>
-      <li><a href="#">Logs & Reports</a></li>
-      <li><a href="#">System Health</a></li>
-      <li><a href="#">Settings</a></li>
+      <li><a href="{{ url_for('index') }}">Overview Panel</a></li>
+      <li><a href="{{ url_for('traffic') }}">Traffic Monitor</a></li>
+      <li><a href="{{ url_for('ids') }}">Intrusion Detection (AI-IDS)</a></li>
+      <li><a href="{{ url_for('qkd') }}">QKD Security</a></li>
+      <li class="active"><a href="{{ url_for('attack') }}">Attack Simulation</a></li>
+      <li><a href="{{ url_for('logs') }}">Logs & Reports</a></li>
+      <li><a href="{{ url_for('health') }}">System Health</a></li>
+      <li><a href="{{ url_for('settings') }}">Settings</a></li>
     </ul>
   </div>
 
-  <!-- Main -->
   <div class="main">
-
     <h1>Attack Simulation</h1>
 
-    <!-- Controls -->
-    <div style="margin-bottom: 20px;">
+    <div class="controls">
       <label>Select Attack:</label>
       <select id="attackType">
         <option value="DoS">DoS</option>
         <option value="DDoS">DDoS</option>
         <option value="PortScan">Port Scan</option>
       </select>
-
-      <button onclick="runSimulation()">Run Simulation</button>
-      <span id="lastUpdate" style="margin-left:20px; font-size:14px;">Last update: --</span>
+      <button id="runSimBtn">Run Simulation</button>
+      <span id="lastUpdate" style="margin-left:auto; font-size:14px;">Last update: --</span>
     </div>
 
-    <!-- Chart 1 -->
+    <div>
+      <label for="timeRange">Select Time Range:</label>
+      <select id="timeRange">
+        <option value="1m">Last 5 Minutes</option>
+        <option value="1h">Last 1 Hour</option>
+        <option value="24h">Last 24 Hours</option>
+      </select>
+      <button onclick="fetchAttackStats()">Re-query</button>
+    </div>
+
+    <!-- Attack Timeline -->
     <div class="chart">
       <h3>Attack Timeline (Events per Minute)</h3>
       <canvas id="attackTimelineChart"></canvas>
     </div>
 
-    <!-- Table -->
+    <!-- Top Sources Table -->
     <h3>Top Malicious Sources</h3>
-    <table>
+    <table id="topSourcesTable">
       <thead>
-        <tr><th>Source IP</th><th>Events</th></tr>
+        <tr><th>Source IP</th><th>Malicious Events</th></tr>
       </thead>
-      <tbody id="topSourcesBody"></tbody>
+      <tbody></tbody>
     </table>
 
-    <!-- Chart 2 -->
+    <!-- Top Sources Chart -->
     <div class="chart">
       <h3>Top Malicious Sources (Chart)</h3>
       <canvas id="topSourcesChart"></canvas>
@@ -233,86 +124,94 @@ button:hover {
       <div class="card"><h3>Medium Severity</h3><p id="mediumSeverity">0</p></div>
       <div class="card"><h3>Low Severity</h3><p id="lowSeverity">0</p></div>
     </div>
-
   </div>
 
-  <!-- JS -->
   <script>
-    function randomIP() {
-      return (
-        Math.floor(Math.random() * 255) + "." +
-        Math.floor(Math.random() * 255) + "." +
-        Math.floor(Math.random() * 255) + "." +
-        Math.floor(Math.random() * 255)
-      );
+    const attackTimelineCtx = document.getElementById('attackTimelineChart').getContext('2d');
+    const topSourcesCtx = document.getElementById('topSourcesChart').getContext('2d');
+    const lastUpdateDom = document.getElementById('lastUpdate');
+
+    let timelineChart, topSourcesChart;
+
+    // Helper - generate random IP
+    const randomIP = () => `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+
+    // === Build Charts ===
+    function buildTimelineChart(data) {
+      if (timelineChart) timelineChart.destroy();
+      timelineChart = new Chart(attackTimelineCtx, {
+        type: 'line',
+        data: {
+          labels: data.map(d => d.time),
+          datasets: [{
+            label: 'Events per Minute',
+            data: data.map(d => d.events),
+            borderColor: '#3b82f6',
+            fill: false
+          }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+      });
     }
 
-    function runSimulation() {
-      document.getElementById("lastUpdate").textContent =
-        "Last update: " + new Date().toLocaleTimeString();
-
-      loadCharts();
+    function buildTopSourcesChart(data) {
+      if (topSourcesChart) topSourcesChart.destroy();
+      topSourcesChart = new Chart(topSourcesCtx, {
+        type: 'bar',
+        data: {
+          labels: data.map(d => d.ip),
+          datasets: [{
+            label: 'Malicious Events',
+            data: data.map(d => d.count),
+            backgroundColor: '#22c55e'
+          }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+      });
     }
 
-    function loadCharts() {
-      const ctx1 = document.getElementById("attackTimelineChart").getContext("2d");
-      const ctx2 = document.getElementById("topSourcesChart").getContext("2d");
-
-      const timelineData = Array.from({ length: 12 }, (_, i) => ({
-        label: i + "m",
-        value: Math.floor(Math.random() * 120)
+    // === Fetch Attack Stats ===
+    function fetchAttackStats() {
+      const mockTimeline = Array.from({ length: 10 }, (_, i) => ({
+        time: new Date(Date.now() - (10 - i) * 60000).toLocaleTimeString(),
+        events: Math.floor(Math.random() * 100)
       }));
 
-      const sourceData = Array.from({ length: 5 }, () => ({
+      const mockSources = Array.from({ length: 5 }, () => ({
         ip: randomIP(),
-        count: Math.floor(Math.random() * 700)
+        count: Math.floor(Math.random() * 500)
       }));
 
-      // Timeline
-      new Chart(ctx1, {
-        type: "line",
-        data: {
-          labels: timelineData.map(d => d.label),
-          datasets: [{
-            label: "Events",
-            data: timelineData.map(d => d.value),
-            borderColor: "#4ea3ff",
-            borderWidth: 2
-          }]
-        }
-      });
+      buildTimelineChart(mockTimeline);
+      buildTopSourcesChart(mockSources);
 
-      // Bar chart
-      new Chart(ctx2, {
-        type: "bar",
-        data: {
-          labels: sourceData.map(d => d.ip),
-          datasets: [{
-            label: "Malicious Events",
-            data: sourceData.map(d => d.count),
-            backgroundColor: "#36c974"
-          }]
-        }
-      });
+      const tbody = document.querySelector('#topSourcesTable tbody');
+      tbody.innerHTML = mockSources.map(s => `<tr><td>${s.ip}</td><td>${s.count}</td></tr>`).join('');
 
-      // Table update
-      const tbody = document.getElementById("topSourcesBody");
-      tbody.innerHTML = sourceData
-        .map((s) => `<tr><td>${s.ip}</td><td>${s.count}</td></tr>`)
-        .join("");
+      document.getElementById('highSeverity').innerText = Math.floor(Math.random() * 20);
+      document.getElementById('mediumSeverity').innerText = Math.floor(Math.random() * 50);
+      document.getElementById('lowSeverity').innerText = Math.floor(Math.random() * 100);
 
-      // Severity
-      document.getElementById("highSeverity").textContent =
-        Math.floor(Math.random() * 30);
-      document.getElementById("mediumSeverity").textContent =
-        Math.floor(Math.random() * 50);
-      document.getElementById("lowSeverity").textContent =
-        Math.floor(Math.random() * 100);
+      lastUpdateDom.textContent = 'Last update: ' + new Date().toLocaleTimeString();
     }
 
-    loadCharts(); // initial
-  </script>
+    // === Run Simulation ===
+    async function runSimulation() {
+      const attackType = document.getElementById('attackType').value;
+      // Here we simulate a backend call (replace with fetch to Flask)
+      console.log("Simulating attack:", attackType);
+      alert(`Simulation started for ${attackType} attack.`);
+      fetchAttackStats();
+    }
 
+    // === Fetch Traffic Data (placeholder) ===
+    function fetchTrafficData() {
+      fetchAttackStats();
+    }
+
+    // Initialize
+    fetchTrafficData();
+  </script>
 </body>
 </html>
 
