@@ -8,54 +8,108 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
+    /* Dark Theme */
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      display: flex;
-      min-height: 100vh;
-      background: #0f1724;
-      color: #e6eef8;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #141d3b;
+      color: #cfd0f1;
     }
+
+    /* Sidebar */
     .sidebar {
-      width: 300px;
-      background: #081029;
-      padding: 20px;
-      box-sizing: border-box;
+      width: 220px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #1f1f38;
+      padding: 20px 0 0 0;
+      box-shadow: 2px 0 6px rgba(0, 0, 0, 0.5);
     }
-    .sidebar h2 { color: #9cc7ff; margin-bottom: 10px; }
-    .sidebar a { color: #dbefff; text-decoration: none; }
-    .sidebar a:hover { text-decoration: underline; }
-    .sidebar .active a { font-weight: bold; color: #fff; }
-    .main { flex: 1; padding: 24px; }
-    .chart { background: #071223; padding: 12px; border-radius: 8px; margin-bottom: 20px; }
-    h1, h3 { color: #cfe6ff; }
-    select, button {
-      padding: 8px 10px;
+
+    .sidebar h2 {
+      color: #e5e5ee;
+      text-align: center;
+      margin: 0 0 30px 0;
+      font-size: 20px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar ul li {
+      margin: 5px 0;
+    }
+
+    .sidebar ul li a {
+      text-decoration: none;
+      color: #cfd0f1;
+      display: block;
+      padding: 12px 20px;
       border-radius: 6px;
-      border: 1px solid #2b3a4a;
-      background: #0b1220;
-      color: #e6eef8;
-      cursor: pointer;
+      transition: all 0.3s ease;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
+
+    .sidebar ul li.active a,
+    .sidebar ul li a:hover {
+      background-color: #1f1f38;
+      color: #5a5afc;
+    }
+
+    /* Main */
+    .main {
+      margin-left: 220px;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #5a5afc;
       margin-bottom: 20px;
+      font-size: 26px;
     }
-    th, td {
-      padding: 8px;
-      border-bottom: 1px solid #25314a;
-      text-align: left;
+
+    /* Cards */
+    .cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
     }
+
     .card {
-      background: #071223;
-      padding: 12px;
-      border-radius: 8px;
-      min-width: 180px;
-      margin: 10px 10px 10px 0;
+      background-color: #1f1f38;
+      border-radius: 10px;
+      padding: 20px;
+      width: 300px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .summary-cards { display: flex; flex-wrap: wrap; }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+    }
+
+    .card h3 {
+      color: #8aa2f7;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 18px;
+      font-weight: bold;
+      color: #cfd0f1;
+    }
+
+    a {
+      text-decoration: none;
+    }
   </style>
+
 </head>
 
 <body>
